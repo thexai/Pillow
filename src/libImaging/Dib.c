@@ -27,6 +27,9 @@
 
 ModeID
 ImagingGetModeDIB(int size_out[2]) {
+#ifdef UWP
+    return IMAGING_MODE_RGB;
+#else
     /* Get device characteristics */
 
     const HDC dc = CreateCompatibleDC(NULL);
@@ -47,10 +50,15 @@ ImagingGetModeDIB(int size_out[2]) {
     DeleteDC(dc);
 
     return mode;
+#endif
 }
 
 ImagingDIB
 ImagingNewDIB(const ModeID mode, int xsize, int ysize) {
+#ifdef UWP
+    Py_INCREF(Py_NotImplemented);
+    return (ImagingDIB)Py_NotImplemented;
+#else
     /* Create a Windows bitmap */
 
     ImagingDIB dib;
@@ -203,6 +211,7 @@ ImagingNewDIB(const ModeID mode, int xsize, int ysize) {
     }
 
     return dib;
+#endif
 }
 
 void
@@ -224,16 +233,19 @@ ImagingPasteDIB(ImagingDIB dib, Imaging im, int xy[4]) {
 
 void
 ImagingExposeDIB(ImagingDIB dib, void *dc) {
+#ifndef UWP
     /* Copy bitmap to display */
 
     if (dib->palette != 0) {
         SelectPalette((HDC)dc, dib->palette, FALSE);
     }
     BitBlt((HDC)dc, 0, 0, dib->xsize, dib->ysize, dib->dc, 0, 0, SRCCOPY);
+#endif
 }
 
 void
 ImagingDrawDIB(ImagingDIB dib, void *dc, int dst[4], int src[4]) {
+#ifndef UWP
     /* Copy bitmap to printer/display */
 
     if (GetDeviceCaps((HDC)dc, RASTERCAPS) & RC_STRETCHDIB) {
@@ -272,10 +284,14 @@ ImagingDrawDIB(ImagingDIB dib, void *dc, int dst[4], int src[4]) {
             SRCCOPY
         );
     }
+#endif
 }
 
 int
 ImagingQueryPaletteDIB(ImagingDIB dib, void *dc) {
+#ifdef UWP
+    return 0;
+#else
     /* Install bitmap palette */
 
     int n;
@@ -293,10 +309,12 @@ ImagingQueryPaletteDIB(ImagingDIB dib, void *dc) {
     }
 
     return n; /* number of colours that was changed */
+#endif
 }
 
 void
 ImagingDeleteDIB(ImagingDIB dib) {
+#ifndef UWP
     /* Clean up */
 
     if (dib->palette) {
@@ -310,6 +328,7 @@ ImagingDeleteDIB(ImagingDIB dib) {
         DeleteDC(dib->dc);
     }
     free(dib->info);
+#endif
 }
 
 #endif /* _WIN32 */
