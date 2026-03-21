@@ -173,7 +173,7 @@ addPythonExtension(_imagingft
     src/libImaging/Mode.h
     src/libImaging/Mode.c
   LIBRARIES
-    freetype::freetype
+    Freetype::Freetype
 )
 
 addPythonExtension(_imagingmath SOURCES src/_imagingmath.c)
