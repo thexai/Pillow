@@ -184,6 +184,9 @@ _query_palette(ImagingDisplayObject *display, PyObject *args) {
 
 static PyObject *
 _getdc(ImagingDisplayObject *display, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     HWND window;
     HDC dc;
 
@@ -198,10 +201,14 @@ _getdc(ImagingDisplayObject *display, PyObject *args) {
     }
 
     return Py_BuildValue(F_HANDLE, dc);
+#endif
 }
 
 static PyObject *
 _releasedc(ImagingDisplayObject *display, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     HWND window;
     HDC dc;
 
@@ -212,6 +219,7 @@ _releasedc(ImagingDisplayObject *display, PyObject *args) {
     ReleaseDC(window, dc);
 
     Py_RETURN_NONE;
+#endif
 }
 
 static PyObject *
@@ -313,6 +321,9 @@ typedef HANDLE(__stdcall *Func_SetThreadDpiAwarenessContext)(HANDLE);
 
 PyObject *
 PyImaging_GrabScreenWin32(PyObject *self, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     int x = 0, y = 0, width = -1, height;
     int includeLayeredWindows = 0, screens = 0;
     HBITMAP bitmap = NULL;
@@ -460,6 +471,7 @@ error:
     }
 
     return NULL;
+#endif
 }
 
 /* -------------------------------------------------------------------- */
@@ -467,6 +479,9 @@ error:
 
 PyObject *
 PyImaging_GrabClipboardWin32(PyObject *self, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     HANDLE handle = NULL;
     int size;
     void *data;
@@ -517,6 +532,7 @@ PyImaging_GrabClipboardWin32(PyObject *self, PyObject *args) {
         return NULL;
     }
     return Py_BuildValue("zN", format_names[format], result);
+#endif
 }
 
 /* -------------------------------------------------------------------- */
@@ -544,6 +560,7 @@ callback_error(const char *handler) {
     PyErr_Clear();
 }
 
+#ifndef UWP
 static LRESULT CALLBACK
 windowCallback(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
@@ -672,9 +689,13 @@ windowCallback(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     return status;
 }
+#endif
 
 PyObject *
 PyImaging_CreateWindowWin32(PyObject *self, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     HWND wnd;
     WNDCLASS windowClass;
 
@@ -738,10 +759,12 @@ PyImaging_CreateWindowWin32(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS;
 
     return Py_BuildValue(F_HANDLE, wnd);
+#endif
 }
 
 PyObject *
 PyImaging_EventLoopWin32(PyObject *self, PyObject *args) {
+#ifndef UWP
     MSG msg;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -750,6 +773,7 @@ PyImaging_EventLoopWin32(PyObject *self, PyObject *args) {
         DispatchMessage(&msg);
     }
     Py_END_ALLOW_THREADS;
+#endif
 
     Py_RETURN_NONE;
 }
@@ -769,6 +793,9 @@ enhMetaFileProc(
 
 PyObject *
 PyImaging_DrawWmf(PyObject *self, PyObject *args) {
+#ifdef UWP
+    Py_RETURN_NOTIMPLEMENTED;
+#else
     HBITMAP bitmap;
     HENHMETAFILE meta;
     BITMAPCOREHEADER core;
@@ -875,6 +902,7 @@ error:
     DeleteDC(dc);
 
     return buffer;
+#endif
 }
 
 #else
